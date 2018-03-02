@@ -1,0 +1,38 @@
+{
+  "manifest_version": 2,
+  "name": "Mobile Encoder by VEP",
+  "version": "1.5",
+  "icons": {
+    "48": "48.png"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://m.vk.com/*",
+        "https://m.vk.com/*"
+      ],
+      "css": [
+        "styles/test.css"
+      ],
+      "js": [
+        "scripts/aes.js",
+        "scripts/Extension/main_win.js",
+        "scripts/Extension/main_utils.js",
+        "scripts/Extension/XLocalStorage.js",
+        "scripts/BackGround/background_utils.js",
+        "scripts/BackGround/linkedLocalStorage.js",
+        "scripts/BackGround/main_background.js"
+      ]
+    }
+  ],
+  "browser_action": {
+    "default_title": "Mobile Encoder by VEP",
+    "default_icon": "48.png",
+    "default_popup": "popup.html"
+  }
+}
