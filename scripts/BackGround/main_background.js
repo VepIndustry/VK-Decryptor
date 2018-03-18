@@ -65,7 +65,7 @@ function init() {
         }
 
         fake_input.addEventListener("input", function (event) {
-            let res = BGLocalStorage.getKey("condition");
+            let res = BGLocalStorage.getKey(id + "condition");
             if (res === "true") {
                 or_input.value = COFFEE.encrypt(fake_input.value, Back_Utils.getKey(id));
             } else {

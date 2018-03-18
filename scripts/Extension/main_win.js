@@ -43,16 +43,15 @@ document.addEventListener('DOMContentLoaded', async function () {
             }
             setHinter(input, hinter, pass);
         });
-    });
-
-    XLocalStorage.getKey("condition", function (res) {
-        if (res === "true") {
-            btn_add.style.background = "red";
-            btn_add.value = "On";
-        } else {
-            btn_add.style.background = "black";
-            btn_add.value = "Off";
-        }
+        Main_Utils.getCondition(id, function (condition) {
+            if (condition === true) {
+                btn_add.style.background = "red";
+                btn_add.value = "On";
+            } else {
+                btn_add.style.background = "black";
+                btn_add.value = "Off";
+            }
+        })
     });
 
     input.addEventListener("input", function () {
@@ -74,11 +73,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         if (btn_add.value === "On") {
             btn_add.style.background = "black";
             btn_add.value = "Off";
-            Main_Utils.turn(false);
+            Main_Utils.setCondition(id, false);
         } else {
             btn_add.style.background = "red";
             btn_add.value = "On";
-            Main_Utils.turn(true);
+            Main_Utils.setCondition(id, true);
         }
     })
 });
