@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "Mobile Encoder by VEP",
-  "version": "1.5",
+  "name": "VK Encoder by VEP",
+  "version": "1.7",
   "icons": {
     "48": "48.png"
   },
@@ -14,7 +14,9 @@
     {
       "matches": [
         "http://m.vk.com/*",
-        "https://m.vk.com/*"
+        "https://m.vk.com/*",
+        "http://vk.com/*",
+        "https://vk.com/*"
       ],
       "css": [
         "styles/test.css"

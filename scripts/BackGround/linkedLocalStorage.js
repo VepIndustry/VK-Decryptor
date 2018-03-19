@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(
                 sendResponse(key);
             } else if (request['type'] === 'set') {
                 BGLocalStorage.setKey(request['id'], request['key']);
-                refresh();
+                Back_Utils.update();
             }
         }
     }
