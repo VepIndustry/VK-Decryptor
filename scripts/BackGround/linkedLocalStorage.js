@@ -21,6 +21,16 @@ chrome.runtime.onMessage.addListener(
             } else if (request['type'] === 'set') {
                 BGLocalStorage.setKey(request['id'], request['key']);
                 Back_Utils.update();
+                if (Back_Utils.getVersion(Back_Utils.getUrl()) === "full") {
+                    Full_Utils.updateInput(true);
+                }
+            } else if (request['type'] === 'name') {
+                let name = document.getElementsByClassName("im-page--title-main-inner _im_page_peer_name");
+                if (name.length === 0) {
+                    sendResponse("no_name");
+                } else {
+                    sendResponse(name[0].innerText);
+                }
             }
         }
     }

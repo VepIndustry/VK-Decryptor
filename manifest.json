@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "VK Encoder by VEP",
-  "version": "1.7",
+  "version": "1.8",
   "icons": {
     "48": "48.png"
   },
@@ -33,7 +33,7 @@
     }
   ],
   "browser_action": {
-    "default_title": "Mobile Encoder by VEP",
+    "default_title": "VK Encoder by VEP",
     "default_icon": "48.png",
     "default_popup": "popup.html"
   }

@@ -23,8 +23,8 @@ function setHinter(input, hinter, key) {
 
 document.addEventListener('DOMContentLoaded', async function () {
     let id_label = document.getElementById('user_id');
+    let name_label = document.getElementById('user_name');
     let btn_add = document.getElementById('turn');
-    let pass_label = document.getElementById('pass');
     let input = document.getElementById('key');
     let hinter = document.getElementById('hinter');
 
@@ -35,11 +35,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         Main_Utils.getPassword(i, function (pass) {
             if (pass.length === 0) {
-                pass_label.innerText = "No password";
-                pass_label.style.color = "red";
+                input.placeholder = "Standard password";
             } else {
-                pass_label.innerText = pass;
-                pass_label.style.color = "white";
+                input.value = pass;
             }
             setHinter(input, hinter, pass);
         });
@@ -54,17 +52,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         })
     });
 
+    Main_Utils.getName(function (i) {
+        name_label.innerText = i;
+    });
+
     input.addEventListener("input", function () {
         let key = input.value;
         Main_Utils.setKey(id, key);
         setHinter(input, hinter, key);
         Main_Utils.getPassword(id, function (pass) {
             if (pass.length === 0) {
-                pass_label.innerText = "No password";
-                pass_label.style.color = "red";
+                input.placeholder = "Standard password";
             } else {
-                pass_label.innerText = pass;
-                pass_label.style.color = "white";
+                input.value = pass;
             }
         });
     });

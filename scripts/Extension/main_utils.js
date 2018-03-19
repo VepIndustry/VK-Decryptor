@@ -67,5 +67,13 @@ var Main_Utils = {
 
     setCondition: function (id, condition) {
         XLocalStorage.setKey(id + "condition", condition);
+    },
+    
+    getName: function (callback) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, {'type': 'name'}, function (response) {
+                callback(response);
+            });
+        });
     }
 };
