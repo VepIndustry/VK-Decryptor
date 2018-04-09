@@ -75,5 +75,25 @@ var Main_Utils = {
                 callback(response);
             });
         });
+    },
+
+    getAfterTime: function (callback) {
+        XLocalStorage.getKey("time_after", function (number) {
+           if (isNaN(parseInt(number))) {
+               callback(24);
+           } else {
+               callback(parseInt(number));
+           }
+        });
+    },
+
+    getBeforeTime: function (callback) {
+        XLocalStorage.getKey("time_before", function (number) {
+            if (isNaN(parseInt(number))) {
+                callback(0);
+            } else {
+                callback(parseInt(number));
+            }
+        });
     }
 };

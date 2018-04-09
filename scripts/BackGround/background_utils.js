@@ -262,8 +262,10 @@ var Full_Utils = {
 
         if (fake.innerText.length === 0) {
             try {
-                document.getElementsByClassName("ph_content")[0].style.display = null;
-                button.className = "im-send-btn im-chat-input--send _im_send im-send-btn_audio";
+                if (Back_Utils.getCondition()) {
+                    document.getElementsByClassName("ph_content")[0].style.display = null;
+                    button.className = "im-send-btn im-chat-input--send _im_send im-send-btn_audio";
+                }
             } catch (e) {
             }
         }
@@ -297,7 +299,11 @@ var Full_Utils = {
 
     isLater: function () {
         let date = new Date();
-        return (date.getHours() > 23 || date.getHours() < 6);
+        let time_before = BGLocalStorage.getKey("time_before");
+        let time_after = BGLocalStorage.getKey("time_after");
+        time_after = isNaN(parseInt(time_after)) ? 24 : parseInt(time_after);
+        time_before = isNaN(parseInt(time_before)) ? 0 : parseInt(time_before);
+        return (date.getHours() >= time_after || date.getHours() < time_before);
     },
 
     setLaterInput: function () {

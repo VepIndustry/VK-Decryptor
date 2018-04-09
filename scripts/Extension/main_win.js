@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     let btn_add = document.getElementById('turn');
     let input = document.getElementById('key');
     let hinter = document.getElementById('hinter');
+    let time_after = document.getElementById('after_time');
+    let time_before = document.getElementById('before_time');
 
     let id;
     Main_Utils.getId(function (i) {
@@ -49,6 +51,13 @@ document.addEventListener('DOMContentLoaded', async function () {
                 btn_add.style.background = "black";
                 btn_add.value = "Off";
             }
+        });
+        Main_Utils.getAfterTime(function (number) {
+            time_after.value = number;
+        });
+
+        Main_Utils.getBeforeTime(function (number) {
+            time_before.value = number;
         })
     });
 
@@ -67,6 +76,30 @@ document.addEventListener('DOMContentLoaded', async function () {
                 input.value = pass;
             }
         });
+    });
+
+    time_after.addEventListener("input", function () {
+        let key = parseInt(time_after.value);
+        if (isNaN(key) || key > 24 || key < 0) {
+            XLocalStorage.setKey("time_after", 24);
+            if (time_after.value.length !== 0) {
+                time_after.value = 24;
+            }
+        } else {
+            XLocalStorage.setKey("time_after", key);
+        }
+    });
+
+    time_before.addEventListener("input", function () {
+        let key = parseInt(time_before.value);
+        if (isNaN(key) || key > 24 || key < 0) {
+            XLocalStorage.setKey("time_before", 0);
+            if (time_before.value.length !== 0) {
+                time_before.value = 0;
+            }
+        } else {
+            XLocalStorage.setKey("time_before", key);
+        }
     });
 
     btn_add.addEventListener("click", function () {

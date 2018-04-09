@@ -11,6 +11,12 @@ body {
     /*    padding-bottom: 5px;*/
 }
 
+#time {
+    font-size: 16px;
+    color: darkseagreen;
+    /*    padding-bottom: 5px;*/
+}
+
 #pass {
     font-size: 20px;
 
