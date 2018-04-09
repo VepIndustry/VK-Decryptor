@@ -209,7 +209,7 @@ var Full_Utils = {
 
     setFakeValue: function (value) {
         let fake_input = document.getElementById("fake_input");
-        if (fake_input.innerText !== value) {
+        if (fake_input.style.display === "block" && fake_input.innerText !== value) {
             fake_input.innerText = value;
             fake_input.focus();
             setCaretPosition(fake_input, fake_input.innerText.length);
@@ -236,11 +236,15 @@ var Full_Utils = {
         }
         if (res === "true") {
             fake.style.backgroundColor = "azure";
+            fake.style.display = "block";
+            original.style.display = "none";
             if (enc === true) {
                 original.innerText = COFFEE.encrypt(fake.innerText, Back_Utils.getKey(Back_Utils.getId()));
             }
         } else {
             fake.style.backgroundColor = "white";
+            fake.style.display = "none";
+            original.style.display = "block";
             if (enc === true) {
                 original.innerText = fake.innerText;
             }

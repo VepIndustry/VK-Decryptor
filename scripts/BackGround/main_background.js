@@ -1,10 +1,5 @@
-
-
 //Контейнер с сообщениями
 let messages;
-let or_input;
-let fake_input;
-let button;
 
 
 let version = Back_Utils.getVersion(Back_Utils.getUrl());
