@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "VK Encoder by VEP",
-  "version": "1.9",
+  "version": "1.9.1",
   "icons": {
     "48": "48.png"
   },
