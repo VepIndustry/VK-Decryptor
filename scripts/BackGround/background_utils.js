@@ -208,6 +208,8 @@ function setCaretPosition(ctrl, pos) {
     }
 }
 
+let cond;
+
 var Full_Utils = {
     title: "Mobile_Utils",
     "private": !1,
@@ -277,16 +279,33 @@ var Full_Utils = {
     changeCondition: function (enc) {
         let fake = document.getElementById("fake_input");
         let original = document.getElementsByClassName("im_editable im-chat-input--text _im_text")[0];
-        if (enc === true) {
-            fake.style.display = "block";
-            original.style.display = "none";
-            fake.focus();
-            setCaretPosition(fake, fake.innerText.length);
-        } else {
-            fake.style.display = "none";
-            original.style.display = "block";
-            original.focus();
-            setCaretPosition(original, original.innerText.length);
+        if (cond !== enc) {
+            cond = enc;
+            if (enc === true) {
+                fake.style.display = "block";
+                original.style.display = "none";
+                fake.focus();
+                setCaretPosition(fake, fake.innerText.length);
+            } else {
+                fake.style.display = "none";
+                original.style.display = "block";
+                original.focus();
+                setCaretPosition(original, original.innerText.length);
+            }
+        }
+    },
+
+    isLater: function () {
+        let date = new Date();
+        return (date.getHours() > 23 || date.getHours() < 6);
+    },
+
+    setLaterInput: function () {
+        let fake = document.getElementById("fake_input");
+        let original = document.getElementsByClassName("im_editable im-chat-input--text _im_text")[0];
+        original.innerText = "Прости, но мне пора идти спать, завтра спишемся. Спокойной ночи)";
+        if (fake !== null) {
+            Full_Utils.synchronizeInputs(false);
         }
     },
 
@@ -314,19 +333,29 @@ var Full_Utils = {
 
             button = document.getElementsByClassName("im-send-btn im-chat-input--send _im_send")[0];
 
-            let obs = new MutationObserver(function (mutations) {
-                Full_Utils.synchronizeInputs(false);
-            });
             let config = {
                 attributes: true, childList: true, characterData: true,
                 subtree: true,
                 attributeOldValue: true,
                 characterDataOldValue: true
             };
+            let obs = new MutationObserver(function (mutations) {
+                obs.disconnect();
+                if (Full_Utils.isLater()) {
+                    Full_Utils.setLaterInput();
+                } else {
+                    Full_Utils.synchronizeInputs(false);
+                }
+                obs.observe(or_input, config);
+            });
             obs.observe(or_input, config);
 
             fake_input.addEventListener("input", function (event) {
-                Full_Utils.synchronizeInputs(true);
+                if (Full_Utils.isLater()) {
+                    Full_Utils.setLaterInput();
+                } else {
+                    Full_Utils.synchronizeInputs(true);
+                }
             });
 
             fake_input.addEventListener("keydown", function (t) {
@@ -352,10 +381,6 @@ var Full_Utils = {
                 }
             });
 
-            or_input.addEventListener("input", function (e) {
-                Full_Utils.synchronizeInputs(false);
-            });
-
             button.addEventListener('click', function (e) {
                 Full_Utils.setFakeValue("");
             })
@@ -372,10 +397,6 @@ var Full_Utils = {
         let messages_observer = new MutationObserver(function (mutations) {
             messages_observer.disconnect();
             Full_Utils.updateMessages();
-            /*if (dialogName !== Back_Utils.getUrl()) {
-                dialogName = Back_Utils.getUrl();
-                Full_Utils.synchronizeInputs();
-            }*/
             messages_observer.observe(document.getElementsByClassName("_im_peer_history im-page-chat-contain")[0], config);
         });
 
