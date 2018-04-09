@@ -22,7 +22,11 @@ chrome.runtime.onMessage.addListener(
                 BGLocalStorage.setKey(request['id'], request['key']);
                 Back_Utils.update();
                 if (Back_Utils.getVersion(Back_Utils.getUrl()) === "full") {
-                    Full_Utils.updateInput(true);
+                    if (request['key'] === true) {
+                        Full_Utils.synchronizeInputs(false);
+                    } else {
+                        Full_Utils.synchronizeInputs(true);
+                    }
                 }
             } else if (request['type'] === 'name') {
                 let name = document.getElementsByClassName("im-page--title-main-inner _im_page_peer_name");

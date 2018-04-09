@@ -16,6 +16,11 @@ var Back_Utils = {
         }
     },
 
+    getCondition: function () {
+        let res = BGLocalStorage.getKey(Back_Utils.getId() + "condition");
+        return res === "true";
+    },
+
     getId: function () {
         let tabUrl = document.location.href;
 
@@ -74,9 +79,9 @@ var Back_Utils = {
     update: function () {
         let version = Back_Utils.getVersion(Back_Utils.getUrl());
         if (version === "mobile") {
-            Mobile_Utils.update();
+            Mobile_Utils.updateMessages();
         } else if (version === "full") {
-            Full_Utils.update();
+            Full_Utils.updateMessages();
         }
     }
 
@@ -156,8 +161,8 @@ var Mobile_Utils = {
                 messages = message_block[0];
                 body_observer.disconnect();
 
-                Mobile_Utils.init();
-                Mobile_Utils.update();
+                Mobile_Utils.initDialogInputs();
+                Mobile_Utils.updateMessages();
 
                 body_observer.observe(body, config);
                 messages_observer.observe(messages, config);
@@ -166,7 +171,7 @@ var Mobile_Utils = {
 
         let messages_observer = new MutationObserver(function (mutations) {
             messages_observer.disconnect();
-            Mobile_Utils.update();
+            Mobile_Utils.updateMessages();
             messages_observer.observe(messages, config);
         });
 
@@ -207,6 +212,11 @@ var Full_Utils = {
     title: "Mobile_Utils",
     "private": !1,
 
+    /**
+     * Set value of fake input
+     *
+     * @param value
+     */
     setFakeValue: function (value) {
         let fake_input = document.getElementById("fake_input");
         if (fake_input.style.display === "block" && fake_input.innerText !== value) {
@@ -216,49 +226,77 @@ var Full_Utils = {
         }
     },
 
-    updateInput: function (enc) {
+    /**
+     *
+     */
+    synchronizeInputs: function (isFakeInitiator) {
         let fake = document.getElementById("fake_input");
         let original = document.getElementsByClassName("im_editable im-chat-input--text _im_text")[0];
-        let res = BGLocalStorage.getKey(Back_Utils.getId() + "condition");
+        let res = Back_Utils.getCondition();
         let button = document.getElementsByClassName("im-send-btn im-chat-input--send _im_send")[0];
+
+        if (res) {
+            Full_Utils.changeCondition(true);
+            if (isFakeInitiator) {
+                original.innerText = COFFEE.encrypt(fake.innerText, Back_Utils.getKey(Back_Utils.getId()));
+            } else {
+                if (COFFEE.encrypt(fake.innerText, Back_Utils.getKey(Back_Utils.getId())) !== original.innerText) {
+                    let newLine = COFFEE.decrypt(original.innerText, Back_Utils.getKey(Back_Utils.getId()));
+                    if (newLine != null) {
+                        Full_Utils.setFakeValue(newLine);
+                    } else {
+                        Full_Utils.setFakeValue(original.innerText);
+                        original.innerText = COFFEE.encrypt(fake.innerText, Back_Utils.getKey(Back_Utils.getId()));
+                    }
+                }
+            }
+        } else {
+            let newLine = COFFEE.decrypt(original.innerText, Back_Utils.getKey(Back_Utils.getId()));
+            if (newLine != null) {
+                original.innerText = newLine;
+            }
+            Full_Utils.changeCondition(false);
+        }
+
         if (fake.innerText.length === 0) {
             try {
                 document.getElementsByClassName("ph_content")[0].style.display = null;
                 button.className = "im-send-btn im-chat-input--send _im_send im-send-btn_audio";
             } catch (e) {
             }
-        } else {
+        }
+        else {
             try {
                 document.getElementsByClassName("ph_content")[0].style.display = "none";
                 button.className = "im-send-btn im-chat-input--send _im_send im-send-btn_send";
             } catch (e) {
             }
         }
-        if (res === "true") {
-            fake.style.backgroundColor = "azure";
+    },
+
+    changeCondition: function (enc) {
+        let fake = document.getElementById("fake_input");
+        let original = document.getElementsByClassName("im_editable im-chat-input--text _im_text")[0];
+        if (enc === true) {
             fake.style.display = "block";
             original.style.display = "none";
-            if (enc === true) {
-                original.innerText = COFFEE.encrypt(fake.innerText, Back_Utils.getKey(Back_Utils.getId()));
-            }
+            fake.focus();
+            setCaretPosition(fake, fake.innerText.length);
         } else {
-            fake.style.backgroundColor = "white";
             fake.style.display = "none";
             original.style.display = "block";
-            if (enc === true) {
-                original.innerText = fake.innerText;
-            }
+            original.focus();
+            setCaretPosition(original, original.innerText.length);
         }
     },
 
-    init: function () {
+    initDialogInputs: function () {
         let or_input, fake_input, button, id;
         id = Back_Utils.getId();
 
         if (id !== "" && document.getElementById("fake_input") === null) {
 
             or_input = document.getElementsByClassName("im_editable im-chat-input--text _im_text")[0];
-            or_input.style.display = "none";
 
             fake_input = document.createElement("div");
             fake_input.className = "im_editable im-chat-input--text _im_text";
@@ -267,25 +305,17 @@ var Full_Utils = {
             fake_input.setAttribute("id", "fake_input");
             fake_input.setAttribute("role", "textbox");
             fake_input.setAttribute("aria-multiline", "true");
+            fake_input.style.backgroundColor = "azure";
             let wrap = or_input.parentNode;
 
             wrap.appendChild(fake_input);
-            Full_Utils.setFakeValue("");
-            Full_Utils.updateInput(true);
+
+            Full_Utils.synchronizeInputs(false);
 
             button = document.getElementsByClassName("im-send-btn im-chat-input--send _im_send")[0];
-            console.log(button);
-
-            fake_input.focus();
-            setCaretPosition(fake_input, fake_input.innerText.length);
 
             let obs = new MutationObserver(function (mutations) {
-                let text = COFFEE.decrypt(or_input.innerText, Back_Utils.getKey(Back_Utils.getId()));
-                if (text !== null && typeof text !== 'undefined') {
-                    Full_Utils.setFakeValue(text);
-                } else {
-                    Full_Utils.setFakeValue(or_input.innerText);
-                }
+                Full_Utils.synchronizeInputs(false);
             });
             let config = {
                 attributes: true, childList: true, characterData: true,
@@ -296,7 +326,7 @@ var Full_Utils = {
             obs.observe(or_input, config);
 
             fake_input.addEventListener("input", function (event) {
-                Full_Utils.updateInput(true);
+                Full_Utils.synchronizeInputs(true);
             });
 
             fake_input.addEventListener("keydown", function (t) {
@@ -316,8 +346,14 @@ var Full_Utils = {
             });
 
             or_input.addEventListener("focus", function (e) {
-                fake_input.focus();
-                setCaretPosition(fake_input, fake_input.innerText.length);
+                if (Back_Utils.getCondition()) {
+                    fake_input.focus();
+                    setCaretPosition(fake_input, fake_input.innerText.length);
+                }
+            });
+
+            or_input.addEventListener("input", function (e) {
+                Full_Utils.synchronizeInputs(false);
             });
 
             button.addEventListener('click', function (e) {
@@ -331,6 +367,18 @@ var Full_Utils = {
         //Тело всей страницы
         let body = document.getElementsByTagName("body")[0];
         let messages = "";
+        let dialogName = "";
+
+        let messages_observer = new MutationObserver(function (mutations) {
+            messages_observer.disconnect();
+            Full_Utils.updateMessages();
+            /*if (dialogName !== Back_Utils.getUrl()) {
+                dialogName = Back_Utils.getUrl();
+                Full_Utils.synchronizeInputs();
+            }*/
+            messages_observer.observe(document.getElementsByClassName("_im_peer_history im-page-chat-contain")[0], config);
+        });
+
         let body_observer = new MutationObserver(async function (mutations) {
             let message_block;
 
@@ -344,27 +392,12 @@ var Full_Utils = {
                 messages = id;
                 body_observer.disconnect();
 
-                Full_Utils.init();
-                Full_Utils.update();
-                let fake_input = document.getElementById("fake_input");
-
-                fake_input.focus();
-                setCaretPosition(fake_input, 0);
+                Full_Utils.initDialogInputs();
+                Full_Utils.updateMessages();
 
                 body_observer.observe(body, config);
                 messages_observer.observe(message_block[0], config);
             }
-        });
-        let dialogName = "";
-
-        let messages_observer = new MutationObserver(function (mutations) {
-            messages_observer.disconnect();
-            Full_Utils.update();
-            if (dialogName !== Back_Utils.getUrl()) {
-                dialogName = Back_Utils.getUrl();
-                Full_Utils.updateInput(false);
-            }
-            messages_observer.observe(document.getElementsByClassName("_im_peer_history im-page-chat-contain")[0], config);
         });
 
         let config = {
@@ -378,7 +411,7 @@ var Full_Utils = {
         body.title = body.title + " ";
     },
 
-    update: function () {
+    updateMessages: function () {
         let id = Back_Utils.getId();
         if (id !== "") {
             let key = Back_Utils.getKey(id);
