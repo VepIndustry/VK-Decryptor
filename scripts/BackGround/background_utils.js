@@ -335,8 +335,6 @@ var Full_Utils = {
 
             wrap.appendChild(fake_input);
 
-            Full_Utils.synchronizeInputs(false);
-
             button = document.getElementsByClassName("im-send-btn im-chat-input--send _im_send")[0];
 
             let config = {
@@ -415,12 +413,14 @@ var Full_Utils = {
             if (id === "") {
                 messages_observer.disconnect();
                 messages = "";
+                cond = null;
             } else if (messages !== id) {
                 messages = id;
                 body_observer.disconnect();
 
                 Full_Utils.initDialogInputs();
                 Full_Utils.updateMessages();
+                Full_Utils.synchronizeInputs(false);
 
                 body_observer.observe(body, config);
                 messages_observer.observe(message_block[0], config);
